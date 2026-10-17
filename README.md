@@ -1,115 +1,159 @@
-# Benchmark de Identificadores PostgreSQL — BIGINT Sequencial vs UUIDv4
+# 🏥 Saúde Fácil — Marketplace & Comparador de Medicamentos Local
 
-Este repositório contém o desafio prático de **System Design (Aula 3)** focado na comparação de performance, utilização de espaço em disco e comportamento de índices entre **Chaves Primárias Sequenciais (BIGINT)** e **Chaves Primárias Aleatórias (UUIDv4)** no PostgreSQL.
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-512BD4?style=for-the-badge&logo=dotnet)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap)
+![Entity Framework Core](https://img.shields.io/badge/Entity%20Framework-Core-512BD4?style=for-the-badge&logo=dotnet)
+![Status](https://img.shields.io/badge/Status-Conclu%C3%ADdo-brightgreen?style=for-the-badge)
 
----
-
-## 📌 Contexto e Objetivos
-
-Ao projetar sistemas de alta escala (OLTP), a escolha do tipo de chave primária afeta diretamente a eficiência das gravações no banco de dados, o tamanho dos índices e o uso do *Buffer Pool* na RAM.
-
-* **BIGINT (IDENTITY)**: Estrutura ordenada e monotônica. Os dados são inseridos no modo *append-only*, resultando em alta localidade de referência e baixíssima fragmentação nas páginas da árvore B-Tree.
-* **UUIDv4 (Random UUID)**: Gera identificadores aleatórios de 128 bits. Proporciona unicidade global sem dependência de uma sequência central, mas causa fragmentação constante da árvore B-Tree (*page splits*) e maior *overhead* de memória e armazenamento.
+O **Saúde Fácil** é uma plataforma e marketplace web inteligente projetado para aproximar os consumidores de farmácias e drogarias de bairro. A solução permite que usuários pesquisem, comparem preços em tempo real, verifiquem a proximidade geográfica de estabelecimentos físicos e efetuem compras com diferentes opções de entrega e pagamento, ao mesmo tempo em que oferece às farmácias um ecossistema simplificado para gestão e importação em lote de inventário.
 
 ---
 
-## 🛠️ Tech Stack & Infraestrutura
+## 📌 Sumário
+- [Visão Geral e Proposta de Valor](#-visão-geral-e-proposta-de-valor)
+- [Principais Funcionalidades](#-principais-funcionalidades)
+- [Arquitetura e Tecnologias](#-arquitetura-e-tecnologias)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Como Executar o Projeto](#-como-executar-o-projeto)
+  - [Pré-requisitos](#pré-requisitos)
+  - [Passo a Passo (VS Code / CLI / Visual Studio)](#passo-a-passo-vs-code--cli--visual-studio)
+  - [Configuração e Migração do Banco de Dados](#configuração-e-migração-do-banco-de-dados)
+- [Importação de Estoque em Lote (Farmácias)](#-importação-de-estoque-em-lote-farmácias)
+- [Autor](#-autor)
 
-* **Linguagem**: Java 21
-* **Framework**: Spring Boot 3.2.3 (Spring Data JPA / Hibernate)
-* **Banco de Dados**: PostgreSQL 16
-* **Gerenciador de Dependências**: Apache Maven
-* **Orquestração**: Docker & Docker Compose
+---
+
+## 🎯 Visão Geral e Proposta de Valor
+
+O comércio farmacêutico de bairro muitas vezes enfrenta desafios de visibilidade digital frente às grandes redes. O **Saúde Fácil** resolve essa assimetria centralizando o catálogo e estoque de drogarias locais em um único portal interativo.
+
+### Objetivos do Sistema:
+- **Para o Consumidor:** Encontrar medicamentos pelo menor preço, identificar drogarias mais próximas através de geolocalização por GPS/raio, gerenciar carrinho de compras e realizar checkout de forma simples.
+- **Para a Farmácia Parceira:** Painel exclusivo protegido por autenticação com funcionalidade de carregamento massivo de produtos (Excel/`.xlsx`), integrando seu estoque físico diretamente com a vitrine digital.
+
+---
+
+## ⚙️ Principais Funcionalidades
+
+1. **Vitrine & Catálogo Dinâmico:**
+   - Exibição de medicamentos mais procurados, preços promocionais e detalhes do produto.
+   - Filtragem por categorias como *Analgésicos e Térmicos*, *Anti-inflamatórios*, *Vitaminas e Suplementos*.
+
+2. **Busca Avançada de Medicamentos:**
+   - Pesquisa por nome comercial ou princípio ativo com contagem e filtragem de resultados em tempo real.
+
+3. **Geolocalização de Farmácias ("Mais Próximas"):**
+   - Mapeamento dinâmico e cálculo de distância (em km) a partir do local atual do usuário, listando endereço completo e botão de acesso direto ao catálogo da loja.
+
+4. **Autenticação Segura & Perfis Segregados:**
+   - Login unificado para clientes e estabelecimentos.
+   - Cadastro segregado para **Clientes** (dados pessoais e endereço de entrega) e **Farmácias** (dados corporativos e CNPJ).
+
+5. **Carrinho & Checkout Completo:**
+   - Gestão de itens na sacola de compras persistida em sessão.
+   - Cálculo automático de frete/taxas conforme modalidade (*Entrega Rápida Delivery*).
+   - Métodos de pagamento integrados (PIX) com geração de recibo imediato acompanhado de um código `UUID` único de transação.
+
+6. **Módulo do Parceiro — Importação de Estoque em Lote:**
+   - Upload de planilhas Excel (`.xlsx`) com validação de colunas (*Nome, Categoria, Descricao, Preco, Estoque, ExigeReceita*).
+   - Associação e bloqueio automático do ID do estabelecimento por meio de *Claims* de segurança.
+
+7. **Assistente Virtual (Chatbot FAQ):**
+   - Widget flutuante integrado no rodapé de todas as páginas para sanar dúvidas recorrentes dos usuários de forma autônoma.
+
+---
+
+## 🛠 Arquitetura e Tecnologias
+
+A aplicação segue o padrão arquitetural **MVC (Model-View-Controller)** sobre a plataforma .NET.
+
+* **Backend / Framework:** C# com .NET 9 SDK (ASP.NET Core MVC / Web API)
+* **Persistência / ORM:** Entity Framework Core
+* **Frontend:** Razor Views, HTML5, CSS3 e Bootstrap 5
+* **Algoritmos Especiais:** Cálculo de distâncias geográficas via fórmula de Haversine (`GeoUtils.cs`)
+* **Processamento de Arquivos:** Biblioteca de manipulação de planilhas `.xlsx` em C#
+* **Autenticação:** ASP.NET Core Identity / Claims-Based Authentication
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+SaudeFacil/
+├── Controllers/         # Controladores da aplicação (Home, Produtos, Carrinho, Account, etc.)
+├── Models/              # Entidades do domínio (Cliente, Farmacia, Produto, Pedido, etc.)
+├── Data/                # Contexto do Entity Framework e Mapeamentos (AppDbContext)
+├── Services/            # Regras de negócio e utilitários (GeoUtils, ExcelImporter)
+├── Views/               # Páginas Razor (Interface do Usuário com Bootstrap)
+│   ├── Home/            # Vitrine principal e página Sobre Nós
+│   ├── Farmacia/        # Páginas de geolocalização e catálogo por estabelecimento
+│   ├── Estoque/         # Área restrita para importação em lote
+│   └── Shared/          # Layouts e componentes reutilizáveis (Header, Chatbot FAQ)
+├── wwwroot/             # Arquivos estáticos (CSS, JS, Imagens)
+├── appsettings.json     # Configurações globais e Connection Strings
+└── Program.cs           # Ponto de entrada, injeção de dependências e middlewares
+```
 
 ---
 
 ## 🚀 Como Executar o Projeto
 
-Todo o ambiente de banco de dados e aplicação Spring Boot foi automatizado através do Docker.
-
 ### Pré-requisitos
-* [Docker](https://www.docker.com/) e Docker Compose instalados.
+* [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) instalado na máquina.
+* IDE de sua preferência: [Visual Studio 2022](https://visualstudio.microsoft.com/) ou [VS Code](https://code.visualstudio.com/) (com a extensão C# Dev Kit).
+* Banco de Dados (SQL Server / LocalDB ou SQLite, conforme configurado na Connection String).
 
-### Passos para Execução
+### Passo a Passo (VS Code / CLI / Visual Studio)
 
-1. Clone este repositório:
+1. **Clonar o Repositório:**
    ```bash
-   git clone <URL_DO_REPOSITORIO>
-   cd pk-benchmark-demo
+   git clone https://github.com/seu-usuario/saude-facil.git
+   cd saude-facil
    ```
 
-2. Suba o ambiente automatizado com o Docker Compose:
+2. **Restaurar Dependências:**
    ```bash
-   docker compose up --build
+   dotnet restore
    ```
 
-3. O container `postgres-benchmark` iniciará e executará os scripts de inicialização SQL em `init/01_DDL_DML.sql`. Em seguida, o container `benchmark-app` subirá a aplicação Spring Boot, executando o benchmark automático de **50.000 inserções em lote** para cada tipo de chave.
+3. **Compilar a Aplicação:**
+   ```bash
+   dotnet build
+   ```
+
+4. **Executar o Projeto:**
+   ```bash
+   dotnet run
+   ```
+   Acesse a aplicação no navegador através do endereço informado no terminal (ex: `https://localhost:7xxx` ou `http://localhost:5xxx`).
 
 ---
 
-## 📊 Resultados do Benchmark & Execution Plan
+### Configuração e Migração do Banco de Dados
 
-Abaixo estão descritos os dados extraídos das consultas de diagnóstico e dos planos de execução (`EXPLAIN ANALYZE`).
+Caso a aplicação não aplique as migrações automaticamente no momento da inicialização (`Database.Migrate()`), você pode atualizar o banco manualmente executando o comando:
 
-### 1. Tamanho da Tabela e dos Índices (`pg_relation_size`)
-
-| Tabela | ID Type | Registros | Tamanho Total | Tamanho Apenas dos Índices |
-| :--- | :--- | :--- | :--- | :--- |
-| `orders_sequential` | `BIGINT` | 100.000 | **8984 kB (~8.7 MB)** | **2288 kB (~2.2 MB)** |
-| `orders_uuid` | `UUIDv4` | 100.000 | **12 MB** | **4288 kB (~4.2 MB)** |
-
-> **Análise**: O uso de `UUIDv4` aumentou o tamanho do índice em **quase 90%** (de 2.2 MB para 4.2 MB). Em bases de dados com centenas de milhões de linhas, esse *overhead* reduz a quantidade de páginas do índice mantidas em memória cache (*Buffer Pool*), gerando mais operações de I/O em disco.
+```bash
+dotnet ef database update
+```
+*(Nota: Certifique-se de que a ferramenta `dotnet-ef` esteja instalada globalmente na sua máquina).*
 
 ---
 
-### 2. Análise do Inserção (`INSERT INTO ... SELECT`)
+## 📊 Importação de Estoque em Lote (Farmácias)
 
-#### Inserção Sequencial (`orders_sequential`)
-```text
-Insert on orders_sequential  (cost=0.00..3750.00 rows=0 width=0) (actual time=438.415..438.415 rows=0 loops=1)
-  ->  Subquery Scan on "*SELECT*"  (cost=0.00..3750.00 rows=100000 width=250) (actual time=15.618..160.686 rows=100000 loops=1)
-        ->  Function Scan on generate_series g  (cost=0.00..2750.00 rows=100000 width=48) (actual time=15.026..100.638 rows=100000 loops=1)
-Planning Time: 0.732 ms
-Execution Time: 439.469 ms
-```
+Para que uma farmácia parceira consiga importar seus medicamentos via planilha Excel, a estrutura das colunas na folha de cálculo deve seguir exatamente o padrão abaixo:
 
-#### Inserção Aleatória (`orders_uuid`)
-```text
-Insert on orders_uuid  (cost=0.00..3750.00 rows=0 width=0) (actual time=634.653..634.654 rows=0 loops=1)
-  ->  Subquery Scan on "*SELECT*"  (cost=0.00..3750.00 rows=100000 width=258) (actual time=13.652..243.802 rows=100000 loops=1)
-        ->  Function Scan on generate_series g  (cost=0.00..2750.00 rows=100000 width=48) (actual time=13.622..122.164 rows=100000 loops=1)
-Planning Time: 0.099 ms
-Execution Time: 635.348 ms
-```
-
-> **Análise**: A inserção de 100.000 linhas via consulta direta mostrou um tempo de execução de **439 ms** para `BIGINT` contra **635 ms** para `UUIDv4` — um aumento de aproximadamente **44% no tempo de escrita**, decorrente da necessidade de reorganização das páginas de índice B-Tree aleatórias (*page splits*).
+| Nome | Categoria | Descricao | Preco | Estoque | ExigeReceita |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Ibuprofeno 600mg | Anti-inflamatórios | Indicado para dores leves a moderadas. | 18.20 | 50 | false |
+| Vitamina D3 2.000 UI | Vitaminas e Suplementos | Auxilia no sistema imunológico. | 28.70 | 120 | false |
 
 ---
 
-### 3. Leitura Pontual por Chave Primária (`SELECT BY ID`)
+## 👩‍💻 Autores
 
-#### Consulta Sequencial por `BIGINT`
-```text
-Index Scan using orders_sequential_pkey on orders_sequential  (cost=0.29..8.30 rows=1 width=250) (actual time=0.559..0.561 rows=1 loops=1)
-  Index Cond: (id = 50000)
-Planning Time: 0.892 ms
-Execution Time: 0.591 ms
-```
-
-#### Consulta por `UUIDv4`
-```text
-Index Scan using orders_uuid_pkey on orders_uuid  (cost=0.41..8.43 rows=1 width=258) (actual time=0.014..0.014 rows=0 loops=1)
-  Index Cond: (id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid)
-Planning Time: 0.130 ms
-Execution Time: 0.039 ms
-```
-
-> **Análise**: Ambas as estratégias utilizam **`Index Scan`** com alta eficiência para buscas pontuais de um único registro. Contudo, em consultas que envolvam *range scans* (intervalos) ou ordenação temporal, o `BIGINT` leva vantagem expressiva devido à localidade física dos dados no disco.
-
----
-
-## 🎯 Conclusão e Recomendações de Arquitetura
-
-1. **Quando utilizar BIGINT**: Sistemas transacionais genéricos (OLTP) de alta performance onde não há necessidade de esconder a quantidade de registros inseridos e a criação de IDs acontece centralizada no banco de dados.
-2. **Quando utilizar UUIDv4**: Sistemas distribuídos ou arquiteturas de microsserviços onde a geração do ID precisa ocorrer na camada da aplicação antes da persistência, sem coordenação central.
-3. **Alternativa Recomendada (UUIDv7)**: Para mitigar os impactos do `UUIDv4` sem perder a unicidade distribuída, adota-se o **UUIDv7**, que embute um *timestamp* de milissegundos nos primeiros bits do UUID, garantindo ordenação natural e eliminando a fragmentação por *page splits* no PostgreSQL.
+Desenvolvido por **Gabrielle dos Santos Rodrigues**
+Supervisionado por **Jean Barbosa**  
+*Versão do Sistema: V.0.1*  
+*Ano de Documentação: 2026*
