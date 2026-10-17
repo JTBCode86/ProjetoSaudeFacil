@@ -1,0 +1,146 @@
+﻿@model IEnumerable<SaudeFacil.Application.DTOs.RemedioConsultaDto>
+
+@{
+    ViewData["Title"] = "Buscar Medicamentos";
+    var categoriasList = ViewBag.Categorias as SelectList;
+}
+
+<!-- Banner de Busca com Filtro -->
+<div class="hero-banner mb-4 shadow text-center">
+    <h1 class="fw-bold mb-2">Busca de Medicamentos</h1>
+    <p class="lead opacity-75 mb-4">Encontre e compare o preço do remédio ideal em farmácias próximas</p>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <form method="get" asp-action="Buscar" class="bg-white p-2 rounded-pill shadow-lg d-flex align-items-center gap-2 flex-wrap flex-md-nowrap">
+                <div class="d-flex align-items-center flex-grow-1 ps-3">
+                    <i class="bi bi-search fs-5 text-muted me-2"></i>
+                    <input type="text" name="termo" value="@ViewBag.TermoBusca" class="form-control border-0 shadow-none text-dark" placeholder="Digite o nome do remédio ou princípio ativo..." />
+                </div>
+
+                <div class="border-start d-none d-md-block h-100" style="min-height: 30px;"></div>
+
+                <!-- Select de Categorias -->
+                <div class="d-flex align-items-center px-2">
+                    <i class="bi bi-funnel fs-5 text-muted me-2"></i>
+                    <select name="categoriaId" class="form-select border-0 shadow-none bg-transparent text-dark fw-semibold" style="cursor: pointer; min-width: 180px;">
+                        <option value="">Todas as Categorias</option>
+                        @if (categoriasList != null)
+                        {
+                            @foreach (var item in categoriasList)
+                            {
+                                <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-sf-primary rounded-pill px-4 py-2 fw-bold me-1">Filtrar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Alerta/Banner Visual quando filtrado por Farmácia -->
+@if (ViewBag.NomeFarmacia != null)
+{
+    <div class="alert alert-light border-teal d-flex justify-content-between align-items-center mb-4 shadow-sm rounded-3 flex-wrap gap-2">
+        <span class="fs-6">
+            <i class="bi bi-shop text-teal fs-5 me-2 align-middle"></i> Exibindo catálogo exclusivo de: <strong class="text-teal">@ViewBag.NomeFarmacia</strong>
+        </span>
+        <div class="d-flex gap-2">
+            <!-- Botão Voltar para a página anterior (ex: Farmácias Mais Próximas) -->
+            <button onclick="history.back()" class="btn btn-sm btn-outline-teal rounded-pill fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i> Voltar
+            </button>
+
+            <!-- Botão Limpar Filtro -->
+            <a asp-action="Buscar" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold">
+                <i class="bi bi-x-circle me-1"></i> Limpar filtro de farmácia
+            </a>
+        </div>
+    </div>
+}
+
+<!-- Atalhos Rápidos por Categoria (Pills) -->
+<div class="d-flex align-items-center gap-2 mb-4 overflow-auto pb-2">
+    <span class="fw-bold text-dark me-2"><i class="bi bi-tags me-1"></i> Categorias:</span>
+    <a asp-action="Buscar" asp-route-termo="@ViewBag.TermoBusca" class="btn btn-sm rounded-pill @(ViewBag.CategoriaSelecionada == null ? "btn-dark" : "btn-outline-secondary bg-white")">
+        Todas
+    </a>
+    @if (categoriasList != null)
+    {
+        @foreach (var cat in categoriasList)
+        {
+            var isSelected = ViewBag.CategoriaSelecionada?.ToString() == cat.Value;
+            <a asp-action="Buscar" asp-route-categoriaId="@cat.Value" asp-route-termo="@ViewBag.TermoBusca"
+               class="btn btn-sm rounded-pill @(isSelected ? "btn-sf-primary" : "btn-outline-secondary bg-white text-dark")">
+                @cat.Text
+            </a>
+        }
+    }
+</div>
+
+<!-- Cabeçalho de Resultados -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark mb-0">Resultados da Pesquisa</h3>
+    <span class="badge bg-secondary rounded-pill px-3 py-2 fs-6">@Model.Count() item(ns) encontrado(s)</span>
+</div>
+
+<!-- Grid de Resultados -->
+<div class="row g-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5 bg-white rounded-3 shadow-sm">
+            <i class="bi bi-capsule text-muted display-1"></i>
+            <h4 class="mt-3 text-secondary">Nenhum medicamento encontrado</h4>
+            <p class="text-muted mb-3">Tente alterar o filtro de categoria ou buscar por outro termo.</p>
+            <a asp-action="Buscar" class="btn btn-sf-primary rounded-pill px-4 py-2">Limpar Filtros</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm product-card">
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-light text-dark border px-2 py-1">@item.CategoriaNome</span>
+                            @if (item.ExigeReceita)
+                            {
+                                <span class="badge bg-warning text-dark"><i class="bi bi-file-earmark-medical me-1"></i>Retenção de Receita</span>
+                            }
+                        </div>
+
+                        <h5 class="card-title fw-bold text-dark mb-1">@item.Nome</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-shop me-1 text-teal"></i><strong>@item.NomeFarmacia</strong> — @item.BairroFarmacia
+                        </p>
+
+                        <p class="card-text text-secondary small flex-grow-1">@item.Descricao</p>
+
+                        <div class="d-flex align-items-center gap-1 mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <span class="fw-semibold text-dark">@item.MediaAvaliacoes.ToString("F1")</span>
+                            <span class="text-muted small">(Avaliação)</span>
+                        </div>
+
+                        <div class="pt-3 border-top d-flex justify-content-between align-items-end mt-2">
+                            <div>
+                                <span class="text-muted small d-block">A partir de</span>
+                                <span class="fs-3 fw-bold text-success">R$ @item.Preco.ToString("N2")</span>
+                            </div>
+                            <form asp-controller="Carrinho" asp-action="Adicionar" method="post">
+                                <input type="hidden" name="remedioId" value="@item.Id" />
+                                <button type="submit" class="btn btn-sf-primary rounded-pill px-3">
+                                    <i class="bi bi-cart-plus me-1"></i> Adicionar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

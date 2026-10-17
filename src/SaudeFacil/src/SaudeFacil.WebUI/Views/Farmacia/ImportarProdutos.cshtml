@@ -1,0 +1,62 @@
+﻿@model SaudeFacil.Application.DTOs.ImportarEstoqueDto
+
+@{
+    ViewData["Title"] = "Importar";
+    var erros = ViewBag.Erros as List<string>;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card border-0 shadow-lg rounded-4 p-4 bg-white">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex p-3 rounded-circle bg-light text-teal mb-2">
+                    <i class="bi bi-file-earmark-excel-fill fs-2 text-success"></i>
+                </div>
+                <h3 class="fw-bold text-dark">Importação de Estoque em Lote</h3>
+                <p class="text-muted small">Suba a planilha com seus remédios, preços e estoque atualizado</p>
+            </div>
+
+            @if (erros != null && erros.Any())
+            {
+                <div class="alert alert-warning rounded-3 mb-4">
+                    <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>Avisos na importação:</h6>
+                    <ul class="mb-0 small">
+                        @foreach (var erro in erros)
+                        {
+                            <li>@erro</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form asp-action="ImportarProdutos" method="post" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Sua Farmácia</label>
+
+                    <!-- Select desabilitado visualmente para o usuário -->
+                    <select asp-for="FarmaciaId" asp-items="ViewBag.Farmacias" class="form-select rounded-3" disabled>
+                        <option value="">-- Selecione uma Farmácia --</option>
+                    </select>
+
+                    <!-- Input hidden obrigatório para garantir o envio do ID da farmácia no POST -->
+                    <input type="hidden" asp-for="FarmaciaId" />
+
+                    <span asp-validation-for="FarmaciaId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Arquivo Excel (.xlsx)</label>
+                    <input asp-for="ArquivoExcel" type="file" accept=".xlsx" class="form-control rounded-3" />
+                    <span asp-validation-for="ArquivoExcel" class="text-danger small"></span>
+                    <small class="text-muted d-block mt-1">
+                        <i class="bi bi-info-circle me-1"></i>A planilha deve conter as colunas: <strong>Nome, Categoria, Descricao, Preco, Estoque, ExigeReceita</strong>.
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-sf-primary w-100 rounded-pill py-2 fw-bold">
+                    <i class="bi bi-upload me-1"></i> Processar e Importar Produtos
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

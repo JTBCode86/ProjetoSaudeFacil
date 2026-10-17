@@ -1,0 +1,144 @@
+﻿@model IEnumerable<SaudeFacil.Application.DTOs.RemedioConsultaDto>
+
+@{
+    ViewData["Title"] = "Início - Vitrine Saúde Fácil";
+}
+
+<!-- Hero / Boas-Vindas -->
+<div class="hero-banner mb-5 text-center shadow">
+    <h1 class="fw-bold mb-2">Bem-vindo ao Saúde Fácil</h1>
+    <p class="lead opacity-75 mb-4">O seu marketplace de farmácias de bairro com os melhores preços</p>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <form method="get" asp-action="Buscar" class="bg-white p-2 rounded-pill shadow-lg d-flex align-items-center">
+                <i class="bi bi-search fs-5 text-muted ms-3 me-2"></i>
+                <input type="text" name="termo" class="form-control border-0 shadow-none text-dark" placeholder="Qual medicamento você procura?" />
+                <button type="submit" class="btn btn-sf-primary rounded-pill px-4 py-2 fw-bold">Buscar Medicamentos</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Seção: Farmácias Parceiras -->
+<div class="mb-5">
+    <h3 class="fw-bold text-dark mb-3"><i class="bi bi-shop me-2 text-teal"></i>Farmácias em Destaque no seu Bairro</h3>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light p-3 rounded-circle text-teal"><i class="bi bi-building fs-3"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Farmácia Saúde & Cia</h6>
+                        <small class="text-muted">Bela Vista - São Paulo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light p-3 rounded-circle text-teal"><i class="bi bi-building fs-3"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Drogaria Popular do Bairro</h6>
+                        <small class="text-muted">Itaim Bibi - São Paulo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light p-3 rounded-circle text-teal"><i class="bi bi-building fs-3"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Pharma Viva</h6>
+                        <small class="text-muted">Pinheiros - São Paulo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light p-3 rounded-circle text-teal"><i class="bi bi-building fs-3"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Drogaria Pague Menos Bairro</h6>
+                        <small class="text-muted">Bela Vista - São Paulo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light p-3 rounded-circle text-teal"><i class="bi bi-building fs-3"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Farmácia Bem Estar</h6>
+                        <small class="text-muted">Vila Mariana - São Paulo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light p-3 rounded-circle text-teal"><i class="bi bi-building fs-3"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Drogaria Vida & Saúde</h6>
+                        <small class="text-muted">Santana - São Paulo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Seção: Vitrine de Ofertas -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark mb-0"><i class="bi bi-capsule me-2 text-teal"></i>Medicamentos na Vitrine</h3>
+    <a asp-action="Buscar" class="btn btn-link text-teal fw-semibold">Ver Todos <i class="bi bi-arrow-right"></i></a>
+</div>
+
+<div class="row g-4">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var item in Model.Take(12))
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm product-card">
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-light text-dark border px-2 py-1">@item.CategoriaNome</span>
+                        </div>
+
+                        <h5 class="card-title fw-bold text-dark mb-1">@item.Nome</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-shop me-1 text-primary"></i><strong>@item.NomeFarmacia</strong> — @item.BairroFarmacia
+                        </p>
+
+                        <p class="card-text text-secondary small flex-grow-1">@item.Descricao</p>
+
+                        <div class="pt-3 border-top d-flex justify-content-between align-items-end mt-2">
+                            <div>
+                                <span class="text-muted small d-block">Por apenas</span>
+                                <span class="fs-3 fw-bold text-success">R$ @item.Preco.ToString("N2")</span>
+                            </div>
+                            <form asp-controller="Carrinho" asp-action="Adicionar" method="post">
+                                <input type="hidden" name="remedioId" value="@item.Id" />
+                                <button type="submit" class="btn btn-sf-primary rounded-pill px-3">
+                                    <i class="bi bi-cart-plus me-1"></i> Comprar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-5">
+            <p class="text-muted fs-5">Nenhum medicamento cadastrado no momento.</p>
+        </div>
+    }
+</div>

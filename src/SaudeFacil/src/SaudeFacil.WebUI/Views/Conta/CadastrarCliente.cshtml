@@ -1,0 +1,99 @@
+﻿@model SaudeFacil.Application.DTOs.CadastrarClienteDto
+
+@{
+    ViewData["Title"] = "Cadastro de Cliente";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card border-0 shadow-lg rounded-4 p-4 bg-white">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex p-3 rounded-circle bg-light text-teal mb-2">
+                    <i class="bi bi-person-plus-fill fs-2"></i>
+                </div>
+                <h3 class="fw-bold text-dark">Criar Conta de Cliente</h3>
+                <p class="text-muted small">Cadastre-se para comprar medicamentos nas farmácias do seu bairro</p>
+            </div>
+
+            <form asp-action="CadastrarCliente" method="post">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-3"></div>
+                }
+
+                <h6 class="fw-bold text-teal mb-3"><i class="bi bi-person me-1"></i> Dados Pessoais</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-12">
+                        <label class="form-label font-weight-bold">Nome Completo</label>
+                        <input asp-for="Nome" class="form-control rounded-3" placeholder="Ex: João da Silva" />
+                        <span asp-validation-for="Nome" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">CPF</label>
+                        <input asp-for="Cpf" class="form-control rounded-3" placeholder="000.000.000-00" />
+                        <span asp-validation-for="Cpf" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Telefone / WhatsApp</label>
+                        <input asp-for="Telefone" class="form-control rounded-3" placeholder="(11) 99999-9999" />
+                        <span asp-validation-for="Telefone" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">E-mail</label>
+                        <input asp-for="Email" type="email" class="form-control rounded-3" placeholder="seuemail@dominio.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Senha</label>
+                        <input asp-for="Senha" type="password" class="form-control rounded-3" placeholder="Sua senha secreta" />
+                        <span asp-validation-for="Senha" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold text-teal mb-3"><i class="bi bi-geo-alt me-1"></i> Endereço de Entrega</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">CEP</label>
+                        <input asp-for="Cep" class="form-control rounded-3" placeholder="00000-000" />
+                        <span asp-validation-for="Cep" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Logradouro / Rua</label>
+                        <input asp-for="Logradouro" class="form-control rounded-3" placeholder="Av. Paulista" />
+                        <span asp-validation-for="Logradouro" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Número</label>
+                        <input asp-for="Numero" class="form-control rounded-3" placeholder="100" />
+                        <span asp-validation-for="Numero" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Complemento</label>
+                        <input asp-for="Complemento" class="form-control rounded-3" placeholder="Apto 12 (opcional)" />
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Bairro</label>
+                        <input asp-for="Bairro" class="form-control rounded-3" placeholder="Bela Vista" />
+                        <span asp-validation-for="Bairro" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Cidade</label>
+                        <input asp-for="Cidade" class="form-control rounded-3" placeholder="São Paulo" />
+                        <span asp-validation-for="Cidade" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">UF</label>
+                        <input asp-for="Estado" class="form-control rounded-3" placeholder="SP" maxlength="2" />
+                        <span asp-validation-for="Estado" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-sf-primary w-100 rounded-pill py-2 fw-bold">Concluir Cadastro</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

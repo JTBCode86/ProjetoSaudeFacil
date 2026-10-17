@@ -1,0 +1,187 @@
+﻿<!-- Botão Flutuante do Chatbot -->
+<div id="sf-chatbot-container" class="position-fixed bottom-0 end-0 m-4" style="z-index: 1080;">
+    <!-- Botão de Abertura / Fechamento -->
+    <button id="sf-chat-toggle-btn" class="btn btn-sf-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center p-3" style="width: 60px; height: 60px;">
+        <i id="sf-chat-icon" class="bi bi-chat-dots-fill fs-3 text-white"></i>
+    </button>
+
+    <!-- Janela do Chat -->
+    <div id="sf-chat-box" class="card border-0 shadow-lg rounded-4 d-none flex-column overflow-hidden mt-2 bg-white" style="width: 350px; height: 480px; position: absolute; bottom: 75px; right: 0;">
+        <!-- Cabeçalho do Chat -->
+        <div class="bg-sf-primary text-white p-3 d-flex align-items-center justify-content-between" style="background-color: var(--sf-primary);">
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-white text-teal rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                    <i class="bi bi-robot fs-5"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0">Assistente Saúde Fácil</h6>
+                    <small class="text-white-50" style="font-size: 0.75rem;">Online agora</small>
+                </div>
+            </div>
+            <button id="sf-chat-close-btn" class="btn btn-sm text-white p-0">
+                <i class="bi bi-x-lg fs-5"></i>
+            </button>
+        </div>
+
+        <!-- Corpo de Mensagens -->
+        <div id="sf-chat-messages" class="p-3 overflow-auto flex-grow-1 bg-light d-flex flex-column gap-2" style="font-size: 0.9rem;">
+            <!-- Mensagem Inicial do Robô -->
+            <div class="d-flex flex-column align-items-start">
+                <div class="bg-white text-dark p-3 rounded-4 shadow-sm border" style="max-width: 85%;">
+                    Olá! Sou o assistente virtual do <strong>Saúde Fácil</strong>. Como posso te ajudar hoje? Selecione uma dúvida abaixo:
+                </div>
+                <small class="text-muted ms-2 mt-1" style="font-size: 0.7rem;">Agora mesmo</small>
+            </div>
+
+            <!-- Container das Perguntas Rápidas (FAQ) -->
+            <div id="sf-faq-options" class="d-flex flex-column gap-2 mt-2">
+                <p class="text-muted small fw-bold mb-1">Perguntas Frequentes:</p>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="1">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Como faço para comprar um medicamento?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="2">
+                    <i class="bi bi-question-circle text-teal me-1"></i> As farmácias entregam em domicílio?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="3">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Como encontro farmácias mais próximas?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="4">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Preciso de receita médica online?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="5">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Como cadastrar minha farmácia?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="6">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Como importar estoque via Excel?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="7">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Quais as formas de pagamento aceitas?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="8">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Como acompanhar o status do pedido?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="9">
+                    <i class="bi bi-question-circle text-teal me-1"></i> O Saúde Fácil cobra taxa extra?
+                </button>
+                <button class="btn btn-sm btn-outline-teal text-start text-dark bg-white shadow-sm py-2 px-3 rounded-pill faq-question" data-id="10">
+                    <i class="bi bi-question-circle text-teal me-1"></i> Como redefinir minha senha?
+                </button>
+            </div>
+        </div>
+
+        <!-- Rodapé / Ação de Reiniciar -->
+        <div class="p-2 bg-white border-top text-center">
+            <button id="sf-chat-reset" class="btn btn-link text-muted btn-sm text-decoration-none" style="font-size: 0.8rem;">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Ver todas as perguntas novamente
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos específicos do Chatbot -->
+<style>
+    .btn-outline-teal {
+        border-color: #cbd5e1;
+        transition: all 0.2s ease;
+    }
+
+        .btn-outline-teal:hover {
+            background-color: #f0fdfa !important;
+            border-color: var(--sf-primary);
+            color: var(--sf-primary) !important;
+        }
+</style>
+
+<!-- Script interativo do Chatbot -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById("sf-chat-toggle-btn");
+        const closeBtn = document.getElementById("sf-chat-close-btn");
+        const chatBox = document.getElementById("sf-chat-box");
+        const chatIcon = document.getElementById("sf-chat-icon");
+        const chatMessages = document.getElementById("sf-chat-messages");
+        const faqContainer = document.getElementById("sf-faq-options");
+        const resetBtn = document.getElementById("sf-chat-reset");
+
+        // Base de Conhecimento (Top 10 Respostas)
+        const faqRespostas = {
+            "1": "Para comprar um medicamento, basta navegar até a barra de busca ou selecionar uma categoria, escolher o produto desejado na farmácia de sua preferência e adicioná-lo ao carrinho. Depois, finalize o pedido com seus dados de entrega.",
+            "2": "Sim! As farmácias parceiras cadastradas na plataforma realizam entregas em domicílio na sua região com base na geolocalização e raio de atendimento.",
+            "3": "Você pode clicar na aba 'Mais Próximas' no menu superior. O sistema utilizará a sua localização para listar as farmácias de bairro mais perto de você.",
+            "4": "Para medicamentos que exigem retenção de receita (controlados), você precisará apresentar a receita física ou digital diretamente ao estabelecimento no momento da entrega ou retirada, conforme a regulamentação local.",
+            "5": "É muito simples! Basta clicar em 'Cadastre-se' no menu superior e selecionar a opção 'Sou Farmácia / Parceiro'. Preencha os dados da sua farmácia para começar.",
+            "6": "Com o perfil de farmácia logado, clique em 'Importar' no menu superior, selecione o seu arquivo formatado em Excel (.xlsx) contendo os produtos e clique em processar.",
+            "7": "As formas de pagamento aceitas (como cartão de crédito, PIX ou dinheiro na entrega) dependem de cada farmácia parceira listada no momento do fechamento do pedido.",
+            "8": "Atualmente, você pode acompanhar os detalhes e o andamento do seu pedido diretamente com a farmácia parceira responsável pela venda e entrega.",
+            "9": "Não! O Saúde Fácil atua como um marketplace e comparador gratuito para os clientes. Você paga apenas o valor justo dos produtos e a taxa de entrega da farmácia.",
+            "10": "Na página de login, clique na opção de recuperação de senha ou entre em contato com o suporte da plataforma para redefinir suas credenciais de acesso."
+        };
+
+        // Alternar abertura/fechamento do chat
+        function toggleChat() {
+            if (chatBox.classList.contains("d-none")) {
+                chatBox.classList.remove("d-none");
+                chatBox.classList.add("d-flex");
+                chatIcon.classList.remove("bi-chat-dots-fill");
+                chatIcon.classList.add("bi-x-lg");
+            } else {
+                chatBox.classList.remove("d-flex");
+                chatBox.classList.add("d-none");
+                chatIcon.classList.remove("bi-x-lg");
+                chatIcon.classList.add("bi-chat-dots-fill");
+            }
+        }
+
+        toggleBtn.addEventListener("click", toggleChat);
+        closeBtn.addEventListener("click", toggleChat);
+
+        // Ação ao clicar em uma pergunta
+        chatMessages.addEventListener("click", function (e) {
+            const btn = e.target.closest(".faq-question");
+            if (!btn) return;
+
+            const id = btn.getAttribute("data-id");
+            const perguntaTexto = btn.textContent.trim();
+            const respostaTexto = faqRespostas[id];
+
+            // Adiciona a pergunta do usuário na conversa
+            const userMsgDiv = document.createElement("div");
+            userMsgDiv.className = "d-flex flex-column align-items-end mb-2";
+            userMsgDiv.innerHTML = `
+                <div class="bg-sf-primary text-white p-3 rounded-4 shadow-sm" style="background-color: var(--sf-primary); max-width: 85%;">
+                    ${perguntaTexto}
+                </div>
+                <small class="text-muted me-2 mt-1" style="font-size: 0.7rem;">Agora mesmo</small>
+            `;
+            chatMessages.appendChild(userMsgDiv);
+
+            // Esconde temporariamente os botões de FAQ para manter o fluxo limpo
+            faqContainer.style.display = "none";
+
+            // Simula um pequeno atraso de digitação do bot (ex: 400ms)
+            setTimeout(() => {
+                const botMsgDiv = document.createElement("div");
+                botMsgDiv.className = "d-flex flex-column align-items-start mb-2";
+                botMsgDiv.innerHTML = `
+                    <div class="bg-white text-dark p-3 rounded-4 shadow-sm border" style="max-width: 85%;">
+                        ${respostaTexto}
+                    </div>
+                    <small class="text-muted ms-2 mt-1" style="font-size: 0.7rem;">Agora mesmo</small>
+                `;
+                chatMessages.appendChild(botMsgDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Re exibe as opções de FAQ abaixo da resposta para novas dúvidas
+                faqContainer.style.display = "flex";
+            }, 400);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+
+        // Botão para reiniciar/mostrar novamente as opções
+        resetBtn.addEventListener("click", function () {
+            faqContainer.style.display = "flex";
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    });
+</script>

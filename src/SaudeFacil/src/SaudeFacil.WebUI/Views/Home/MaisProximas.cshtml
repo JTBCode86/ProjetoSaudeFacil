@@ -1,0 +1,104 @@
+﻿@model IEnumerable<SaudeFacil.Application.DTOs.FarmaciaDto>
+
+@{
+    ViewData["Title"] = "Farmácias Mais Próximas";
+}
+
+<div class="container py-3">
+    <!-- Cabeçalho da Página -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-teal mb-1"><i class="bi bi-geo-alt-fill me-2"></i>Farmácias Mais Próximas</h2>
+            <p class="text-muted mb-0">Encontre os estabelecimentos mais próximos da sua localização.</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <!-- Botão Voltar -->
+            <button onclick="history.back()" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i> Voltar
+            </button>
+
+            <!-- Botão Usar Localização -->
+            <button id="btnObterLocalizacao" class="btn btn-outline-teal btn-sm rounded-pill px-3">
+                <i class="bi bi-crosshair me-1"></i> Usar Minha Localização
+            </button>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info rounded-3 shadow-sm" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i> Nenhuma farmácia encontrada no momento.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var farmacia in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 product-card shadow-sm border-0">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="brand-logo text-teal bg-light">
+                                    <i class="bi bi-shop fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title fw-bold mb-0">@farmacia.NomeFantasia</h5>
+
+                                    <span class="badge bg-teal-subtle text-teal mt-1">
+                                        <i class="bi bi-pin-map me-1"></i>@farmacia.DistanciaKm.ToString("N2") km
+                                    </span>
+                                </div>
+                            </div>
+
+                            <p class="card-text text-muted small mb-3">
+                                <i class="bi bi-geo-alt me-1 text-teal"></i>
+                                @farmacia.Logradouro - @farmacia.Bairro, @farmacia.Cidade
+                            </p>
+
+                            <div class="mt-auto pt-3 border-top d-flex gap-2">
+                                <a asp-controller="Home" asp-action="PorFarmacia" asp-route-id="@farmacia.Id" class="btn btn-sf-primary w-100 rounded-pill btn-sm fw-semibold">
+                                    <i class="bi bi-capsule me-1"></i> Ver Catálogo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Se ainda não tiver parâmetros de lat/lon na URL, solicita automaticamente
+            if (!urlParams.has('lat') || !urlParams.has('lon')) {
+                obterLocalizacao();
+            }
+
+            document.getElementById('btnObterLocalizacao')?.addEventListener('click', function() {
+                obterLocalizacao();
+            });
+        });
+
+        function obterLocalizacao() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+
+                        // Recarrega a página enviando as coordenadas
+                        window.location.href = `/Home/MaisProximas?lat=${lat}&lon=${lon}`;
+                    },
+                    function (error) {
+                        console.warn("Permissão de localização negada ou indisponível.", error.message);
+                    }
+                );
+            }
+        }
+    </script>
+}
